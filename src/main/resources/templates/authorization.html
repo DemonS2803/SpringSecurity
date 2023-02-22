@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+  <meta charset="UTF-8">
+  <title>Auth</title>
+</head>
+<body>
+<form th:action="@{/auth}" method="post">
+  <table border="1">
+    <tr>
+      <td>Login</td>
+      <td><input type="text" th:field="*{userDTO.login}"></td>
+    </tr>
+    <tr>
+      <td>Password</td>
+      <td><input type="text" th:field="*{userDTO.password}"></td>
+    </tr>
+  </table>
+  <button type="submit">Save</button>
+</form>
+</body>
+</html>
