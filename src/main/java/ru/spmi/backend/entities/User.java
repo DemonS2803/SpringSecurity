@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.spmi.backend.enums.Role;
+import ru.spmi.backend.enums.Status;
 
 
 @Entity
@@ -27,5 +28,6 @@ public class User {
     @Column(name = "role")
     @Enumerated(EnumType.STRING)
     private Role roles;
+    private Status status;
 
 }
