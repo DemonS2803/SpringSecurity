@@ -23,7 +23,7 @@ public class JwtTokenProvider {
     @Value("${jwt.secret}")
     private String secretKey;
     @Value("${jwt.expiration}")
-    private String expiration;
+    private Long expiration;
     @Value("${jwt.header}")
     private String authHeader;
 
@@ -41,7 +41,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(username);
         claims.put("role", role);
         Date now = new Date();
-        Date valid = new Date(now.getTime() + Long.parseLong(expiration) * 1000);
+        Date valid = new Date(now.getTime() + expiration * 1000);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)
@@ -53,13 +53,15 @@ public class JwtTokenProvider {
     public boolean validateToken(String token) {
         try {
             Jws<Claims> claimsJws = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
+            System.out.println("validating token");
             return !claimsJws.getBody().getExpiration().before(new Date());
         } catch (JwtException | IllegalArgumentException e) {
+            System.out.println("error while validating token");
             throw new JwtAuthException("Jwt token is expired or invalid", HttpStatus.UNAUTHORIZED);
         }
     }
 
-    public Authentication getAuthentication(String token) {
+    public UsernamePasswordAuthenticationToken getAuthentication(String token) {
         UserDetails userDetails = this.userDetailsService.loadUserByUsername(getUsername(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }

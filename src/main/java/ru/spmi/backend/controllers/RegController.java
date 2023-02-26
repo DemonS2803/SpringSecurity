@@ -27,16 +27,16 @@ public class RegController {
         return "registration";
     }
 
-    @PostMapping("/reg")
-    public String saveNewUser(UserDTO userDTO, Model model) {
-        try {
-            userService.saveUser(userDTO);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return "redirect:/reg";
-        }
-        return "redirect:/";
-    }
+//    @PostMapping("/reg")
+//    public String saveNewUser(UserDTO userDTO, Model model) {
+//        try {
+//            userService.saveUser(userDTO);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            return "redirect:/reg";
+//        }
+//        return "redirect:/";
+//    }
 
 //    @GetMapping("/reg")
 //    public String authorisationView(Model model) {

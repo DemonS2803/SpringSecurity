@@ -15,6 +15,8 @@ public class SecurityUser implements UserDetails {
     private String password;
     private List<SimpleGrantedAuthority> authorities;
     private boolean isActive;
+    private static final long serialVersionUID = 1L;
+
 
     public SecurityUser(String username, String password, List<SimpleGrantedAuthority> authorities, boolean isActive) {
         this.login = username;
@@ -59,6 +61,7 @@ public class SecurityUser implements UserDetails {
     }
 
     public static UserDetails fromUser(User user) {
+        System.out.println("security user creating");
         return new org.springframework.security.core.userdetails.User(
                 user.getLogin(), user.getPassword(),
                 user.getStatus().equals(Status.ACTIVE),

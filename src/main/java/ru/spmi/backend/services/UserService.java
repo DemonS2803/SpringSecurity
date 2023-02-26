@@ -27,41 +27,41 @@ public class UserService {
     @Autowired
     PersonService personService;
 
-    public boolean saveUser(UserDTO userDTO) {
-        try {
-            if (userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()) != null) {
-                throw new UserAlreadyExistsException();
-            }
-            System.out.println(userDTO.getRole().name());
-            Person person = Person.builder()
-                    .realUsername(userDTO.getUsername())
-                    .users(new ArrayList<>())
-                    .build();
-            personRepository.save(person);
-            User user = User.builder()
-                    .login(userDTO.getLogin())
-                    .username(userDTO.getUsername())
-                    .password(userDTO.getPassword())
-                    .roles(userDTO.getRole())
-                    .person(person)
-                    .build();
-            person.addUser(user);
-            userRepository.save(user);
-            personRepository.save(person);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return true;
-    }
-
-    public boolean isRealUser(UserDTO userDTO) {
-        User user = userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword());
-        return user != null;
-    }
-
-    public Person getPersonByUserDTO(UserDTO userDTO) {
-        return userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).getPerson();
-    }
+//    public boolean saveUser(UserDTO userDTO) {
+//        try {
+//            if (userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()) != null) {
+//                throw new UserAlreadyExistsException();
+//            }
+//            System.out.println(userDTO.getRole().name());
+//            Person person = Person.builder()
+//                    .realUsername(userDTO.getUsername())
+//                    .users(new ArrayList<>())
+//                    .build();
+//            personRepository.save(person);
+//            User user = User.builder()
+//                    .login(userDTO.getLogin())
+//                    .username(userDTO.getUsername())
+//                    .password(userDTO.getPassword())
+//                    .roles(userDTO.getRole())
+//                    .person(person)
+//                    .build();
+//            person.addUser(user);
+//            userRepository.save(user);
+//            personRepository.save(person);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return true;
+//    }
+//
+//    public boolean isRealUser(UserDTO userDTO) {
+//        User user = userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword());
+//        return user != null;
+//    }
+//
+//    public Person getPersonByUserDTO(UserDTO userDTO) {
+//        return userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).getPerson();
+//    }
 
 
 
