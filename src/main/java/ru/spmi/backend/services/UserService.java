@@ -1,85 +1,50 @@
 package ru.spmi.backend.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import ru.spmi.backend.entities.Person;
-import ru.spmi.backend.entities.User;
-import ru.spmi.backend.entities.UserDTO;
-import ru.spmi.backend.enums.Role;
-import ru.spmi.backend.exceptions.UserAlreadyExistsException;
-import ru.spmi.backend.repositories.PersonRepository;
-import ru.spmi.backend.repositories.UserRepository;
+import ru.spmi.backend.entities.DRolesEntity;
+import ru.spmi.backend.entities.UsersEntity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collector;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
-@Service
-public class UserService {
+@Service("userDetailsService")
+public class UserService implements UserDetailsService {
+
 
     @Autowired
-    UserRepository userRepository;
+    private UserDAO userDAO;
     @Autowired
-    PersonRepository personRepository;
-    @Autowired
-    PersonService personService;
+    private PasswordEncoder passwordEncoder;
 
-//    public boolean saveUser(UserDTO userDTO) {
-//        try {
-//            if (userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()) != null) {
-//                throw new UserAlreadyExistsException();
-//            }
-//            System.out.println(userDTO.getRole().name());
-//            Person person = Person.builder()
-//                    .realUsername(userDTO.getUsername())
-//                    .users(new ArrayList<>())
-//                    .build();
-//            personRepository.save(person);
-//            User user = User.builder()
-//                    .login(userDTO.getLogin())
-//                    .username(userDTO.getUsername())
-//                    .password(userDTO.getPassword())
-//                    .roles(userDTO.getRole())
-//                    .person(person)
-//                    .build();
-//            person.addUser(user);
-//            userRepository.save(user);
-//            personRepository.save(person);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return true;
-//    }
-//
-//    public boolean isRealUser(UserDTO userDTO) {
-//        User user = userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword());
-//        return user != null;
-//    }
-//
-//    public Person getPersonByUserDTO(UserDTO userDTO) {
-//        return userRepository.findUserByLoginAndPassword(userDTO.getLogin(), userDTO.getPassword()).getPerson();
-//    }
+    @Override
+    public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
+        System.out.println(login);
+        ru.spmi.backend.entities.UsersEntity user = userDAO.findUserByLogin(login);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        System.out.println(userDAO.findAllUserRoles(user));
 
+        List<GrantedAuthority> authorities = buildUserAuthority(userDAO.findAllUserRoles(user));
 
+        return buildUserForAuthentication(user, authorities);
+    }
 
+    public User buildUserForAuthentication(ru.spmi.backend.entities.UsersEntity user, List<GrantedAuthority> grantedAuthorities) {
+        return new User(user.getLogin(), user.getPassword(), true, true, true, true, grantedAuthorities);
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public List<GrantedAuthority> buildUserAuthority(Set<DRolesEntity> userRoles) {
+        Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        userRoles.forEach((userRole) -> grantedAuthorities.add(new SimpleGrantedAuthority(userRole.getRoleName())));
+        return new ArrayList<>(grantedAuthorities);
+    }
 
 }
+
+

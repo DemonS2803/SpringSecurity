@@ -5,18 +5,17 @@
   <title>Auth</title>
 </head>
 <body>
-<form th:action="@{/home}" method="post">
+<form th:action="@{/api/auth/choose_role}" method="post">
   <h1>Hello!</h1><br>
-  <h1 th:text="${person.getRealUsername()}"></h1><br>
   <table>
     <tr>
       <td>Roles</td>
       <td>
-        <select  name="category" style="height: 22px; width: 200px" th:field="*{userDTO.role}">
+        <select  name="category" style="height: 22px; width: 200px" th:field="*{chosenRole}">
           <option value="">---</option>
-          <option th:each="role : ${personRoles}"
+          <option th:each="role : ${rolesToChoose}"
                   th:value="${role}"
-                  th:text="${role.name()}">
+                  th:text="${role}">
           </option>
         </select>
       </td>

@@ -24,5 +24,10 @@ jwt:
         Authorization
     secret:
         spmi
-    expiration:
-        100000
+    time:
+        expired:
+            5
+        accept:
+            300
+    issuer:
+        app
