@@ -61,7 +61,7 @@ public class AuthController {
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("Authorization", jwt);
-
+//
         Set<DRolesEntity> roles = userDAO.findAllUserRoles(userDAO.findUserByLogin(loginRequest.getLogin()));
         if (roles.size() < 2) {
             var userdto = new UserDTO();
