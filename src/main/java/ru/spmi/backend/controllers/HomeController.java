@@ -1,6 +1,8 @@
 package ru.spmi.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,21 +13,17 @@ import ru.spmi.backend.repositories.UserRepository;
 import java.util.ArrayList;
 
 @RestController
-@RequestMapping("/api/content")
-public class ContentController {
+@RequestMapping("/home")
+public class HomeController {
 
     @Autowired
     private UserRepository userRepository;
 
     @GetMapping("/users")
-    @PreAuthorize("permission-create")
-    public ArrayList<UsersEntity> getAllUsers() {
-        return userRepository.findAll();
+    public ResponseEntity<?> homeUsers() {
+        return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
-
     @GetMapping("/success")
-    @PreAuthorize("permission-read")
-    public String getSuccessPage() {
-        return "success";
-    }
-}
+    public ResponseEntity<?> homeSuccess() {
+        return new ResponseEntity<>("success home page", HttpStatus.OK);
+    }}

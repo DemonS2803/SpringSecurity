@@ -12,7 +12,9 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import ru.spmi.backend.entities.DRolesEntity;
 import ru.spmi.backend.enums.Permission;
+import ru.spmi.backend.services.UserDAO;
 
 @Configuration
 @EnableWebSecurity
@@ -20,6 +22,7 @@ public class WebSecurityConfiguration {
 
     @Autowired
     private AuthEntryPointJwt authEntryPointJwt;
+
 
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
@@ -36,6 +39,10 @@ public class WebSecurityConfiguration {
         httpSecurity
                 .authorizeHttpRequests((authz) -> authz
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/api/teacher/**").hasAnyAuthority( "TEACHER", "ADMIN")
+                        .requestMatchers("/api/student/**").hasAnyAuthority("STUDENT", "ADMIN")
+                        .requestMatchers("/home").permitAll()
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

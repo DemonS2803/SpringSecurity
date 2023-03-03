@@ -11,9 +11,11 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<UsersEntity, Long> {
 
     ArrayList<UsersEntity> findAll();
-    Optional<UsersEntity> findUsersEntityByLogin(String login);
     Optional<UsersEntity> findUsersEntityByLoginAndPassword(String login, String password);
+    Optional<UsersEntity> findUsersEntityByLogin(String login);
+
     ArrayList<UsersEntity> findAllByPersonId(Long personId);
+    Optional<UsersEntity> findUsersEntityByPersonIdAndRoles(Long personId, String role);
 
 
 //    @Query("SELECT ur.role_id from users_roles ur where ur.user_id = ?1")

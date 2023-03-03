@@ -30,7 +30,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         System.out.println(userDAO.findAllUserRoles(user));
 
-        List<GrantedAuthority> authorities = buildUserAuthority(userDAO.findAllUserRoles(user));
+        List<GrantedAuthority> authorities = buildUserAuthority(Set.of(userDAO.getRoleEntityByLogin(login)));
 
         return buildUserForAuthentication(user, authorities);
     }

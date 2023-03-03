@@ -11,7 +11,7 @@
     <tr>
       <td>Roles</td>
       <td>
-        <select  name="category" style="height: 22px; width: 200px" th:field="*{chosenRole}">
+        <select  name="category" style="height: 22px; width: 200px" th:field="*{chosenRole.role}">
           <option value="">---</option>
           <option th:each="role : ${rolesToChoose}"
                   th:value="${role}"

@@ -66,5 +66,34 @@ public class UserDAO {
         return personRoles;
     }
 
+    public String getRoleByLoginAndPassword(String login, String password) {
+        return rolesRepository.findDRolesEntityByRoleId(Long.valueOf(userRepository.findUsersEntityByLoginAndPassword(login, password).get().getRoles())).getRoleName();
+    }
+
+    public String getRoleByLogin(String login) {
+        return rolesRepository.findDRolesEntityByRoleId(Long.valueOf(userRepository.findUsersEntityByLogin(login).get().getRoles())).getRoleName();
+    }
+
+    public DRolesEntity getRoleEntityByLogin(String login) {
+        return rolesRepository.findDRolesEntityByRoleId(Long.valueOf(userRepository.findUsersEntityByLogin(login).get().getRoles()));
+    }
+
+    public DRolesEntity getRoleById(Long roleId) {
+        return rolesRepository.findDRolesEntityByRoleId(roleId);
+    }
+
+    public String findNeedLoginByLoginAndRole(String login, String role) {
+        System.out.println("find " + login + " " + role);
+        UsersEntity user = userRepository.findUsersEntityByLogin(login).get();
+        ArrayList<UsersEntity> usersEntities = userRepository.findAllByPersonId(user.getPersonId());
+        UsersEntity userOut = usersEntities.stream().filter(x -> rolesRepository.findDRolesEntityByRoleName(role).getRoleId() == Long.parseLong(x.getRoles())).findFirst().get();
+        return userOut.getLogin();
+    }
+
+    //Проверяет наличие роли у данного юзера на всех аккаунтах
+    public boolean checkUserRole(String login, String role) {
+        return findAllUserRoles(userRepository.findUsersEntityByLogin(login).get()).stream().map(x -> x.getRoleName()).collect(Collectors.toList()).contains(role);
+    }
+//    public String getUserByPidAndRole()
 
 }

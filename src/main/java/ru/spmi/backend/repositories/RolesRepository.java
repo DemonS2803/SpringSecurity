@@ -11,4 +11,6 @@ import java.util.ArrayList;
 public interface RolesRepository extends JpaRepository<DRolesEntity, Long> {
 
     DRolesEntity findDRolesEntityByRoleId(Long roleId);
+    DRolesEntity findDRolesEntityByRoleName(String roleName);
+
 }

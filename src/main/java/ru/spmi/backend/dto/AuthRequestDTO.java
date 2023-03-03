@@ -1,4 +1,4 @@
-package ru.spmi.backend.entities;
+package ru.spmi.backend.dto;
 
 import lombok.Data;
 
@@ -7,4 +7,5 @@ public class AuthRequestDTO {
 
     private String login;
     private String password;
+
 }

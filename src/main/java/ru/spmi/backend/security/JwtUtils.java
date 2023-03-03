@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
+import ru.spmi.backend.services.UserDAO;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -19,13 +20,16 @@ public class JwtUtils {
 
     @Autowired
     private Environment environment;
+    @Autowired
+    private UserDAO userDAO;
 
-    public String generateJwtToken(Authentication authentication) {
+    public String generateJwtToken(String username, String role) {
         Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, Integer.parseInt(environment.getRequiredProperty("jwt.time.expired")));
         return JWT.create()
-                .withSubject(authentication.getName())
+                .withSubject(username)
+                .withClaim("role", role)
                 .withIssuer(environment.getRequiredProperty("jwt.issuer"))
                 .withExpiresAt(calendar.getTime())
                 .sign(algorithm);
@@ -52,5 +56,10 @@ public class JwtUtils {
     public String getUserNameFromJwtToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
         return JWT.require(algorithm).build().verify(token).getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
+        return JWT.require(algorithm).build().verify(token).getClaim("role").asString();
     }
 }

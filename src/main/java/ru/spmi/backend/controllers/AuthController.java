@@ -1,27 +1,33 @@
 package ru.spmi.backend.controllers;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.spmi.backend.entities.AuthRequestDTO;
-import ru.spmi.backend.entities.JwtResponse;
+import ru.spmi.backend.dto.AuthRequestDTO;
+import ru.spmi.backend.dto.ChosenRoleDTO;
+import ru.spmi.backend.dto.UserDTO;
+import ru.spmi.backend.entities.DRolesEntity;
 import ru.spmi.backend.security.JwtUtils;
 import ru.spmi.backend.services.UserDAO;
 
 import java.io.UnsupportedEncodingException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
-@Controller
+@RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -37,52 +43,78 @@ public class AuthController {
 
 
     @GetMapping("/signin")
-    public String signinPage(Model model) {
-        model.addAttribute("authDTO", new AuthRequestDTO());
-        return "signin";
+    public String signinPage() {
+        return "return signin page";
     }
 
     @PostMapping("/signin")
-    public String authenticateUser( AuthRequestDTO loginRequest, Model model) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        System.out.println(model.getAttribute("authDTO"));
-        System.out.println(userDAO.toSha1(loginRequest.getPassword()));
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getLogin(), userDAO.toSha1(loginRequest.getPassword())));
+    public ResponseEntity<?> authenticateUserPage(@RequestBody @Validated AuthRequestDTO loginRequest) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        Authentication authentication = authenticateUser(loginRequest.getLogin(), loginRequest.getPassword());
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getLogin(), userDAO.getRoleByLogin(loginRequest.getLogin()));
+        System.out.println(jwt);
+        System.out.println("SET_AUTH " + SecurityContextHolder.getContext().getAuthentication().getName());
+        System.out.println("USER: " + authentication.getName());
         System.out.println("token generated");
+        System.out.println("NameFromToken: " + jwtUtils.getUserNameFromJwtToken(jwt));
+        System.out.println("RoleFromToken: " + jwtUtils.getRoleFromToken(jwt));
 
-        List<String> roles = authentication.getAuthorities().stream().map(x -> x.getAuthority())
-                .collect(Collectors.toList());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", jwt);
 
+        Set<DRolesEntity> roles = userDAO.findAllUserRoles(userDAO.findUserByLogin(loginRequest.getLogin()));
         if (roles.size() < 2) {
-            System.out.println("roles < 2 -> success");
-            model.addAttribute("chosenRole", roles.get(0));
-            System.out.println(model.getAttribute("chosenRole"));
-            return "success";
+            var userdto = new UserDTO();
+            userdto.setLogin(loginRequest.getLogin());
+            userdto.setRole(userDAO.findUserByLogin(loginRequest.getLogin()).getRoles());
+            return new ResponseEntity<>(userdto, headers, HttpStatus.ACCEPTED);
 
         } else {
-            model.addAttribute("rolesToChoose", roles);
-            rolesToChoose = roles;
-            return "redirect:/api/auth/choose_role";
+            return new ResponseEntity<>(roles, headers, HttpStatus.OK);
         }
     }
 
     @GetMapping("/choose_role")
-    public String chooseRolePage(Model model) {
-//        SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().forEach(System.out::println);
-        model.addAttribute("rolesToChoose", rolesToChoose);
-        model.addAttribute("chosenRole", "");
-        rolesToChoose.stream().forEach(System.out::println);
-        System.out.println("choose role");
-        return "choose-role";
+    public String chooseRolePage() {
+        return "return choose-role page";
     }
 
     @PostMapping("/choose_role")
-    public String gotChosenRolePage(Model model) {
-        System.out.println("Chosen role:" + model.getAttribute("chosenRole"));
-//        model.addAttribute("chosenRole", chosenRole);
-//        System.out.println(chosenRole);
-        return "success";
+    public ResponseEntity<?> gotChosenRolePage(@RequestHeader("Authorization") String token, @RequestBody @Validated ChosenRoleDTO chosenRole) {
+        System.out.println(token);
+        boolean isTokenValid = jwtUtils.validateJwtToken(token);
+        boolean isRoleAllowed = userDAO.checkUserRole(jwtUtils.getUserNameFromJwtToken(token), chosenRole.getRole());
+        System.out.println(token);
+        System.out.println("NameFromGotToken: " + jwtUtils.getUserNameFromJwtToken(token));
+        System.out.println("RoleFromGotToken: " + jwtUtils.getRoleFromToken(token));
+        System.out.println("isTokenValid " + isTokenValid);
+        System.out.println("isRoleAllowed " + isRoleAllowed);
+        if (isTokenValid && isRoleAllowed) {
+            String newToken = jwtUtils.generateJwtToken(
+                        userDAO.findNeedLoginByLoginAndRole(
+                                SecurityContextHolder.getContext().getAuthentication().getName(),
+                                chosenRole.getRole()),
+                        chosenRole.getRole()
+            );
+            System.out.println("token generated");
+            System.out.println(newToken);
+            System.out.println("ChosenNameFromToken: " + jwtUtils.getUserNameFromJwtToken(newToken));
+            System.out.println("ChosenRoleFromToken: " + jwtUtils.getRoleFromToken(newToken));
+            HttpHeaders headers = new HttpHeaders();
+            headers.add("Authorization", newToken);
+            return new ResponseEntity<>("success sign in", headers, HttpStatus.ACCEPTED);
+        }
+
+
+
+        return new ResponseEntity<>("Something went wrong....", HttpStatus.FORBIDDEN);
+    }
+
+    public Authentication authenticateUser(String login, String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(login, userDAO.toSha1(password)));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        return authentication;
     }
 }
