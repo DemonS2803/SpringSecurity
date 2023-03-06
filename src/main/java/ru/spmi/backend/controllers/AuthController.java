@@ -38,9 +38,6 @@ public class AuthController {
     @Autowired
     private JwtUtils jwtUtils;
 
-    private List<String> rolesToChoose;
-    private String lastChosenRole;
-
 
     @GetMapping("/signin")
     public String signinPage() {
@@ -104,8 +101,6 @@ public class AuthController {
             headers.add("Authorization", newToken);
             return new ResponseEntity<>("success sign in", headers, HttpStatus.ACCEPTED);
         }
-
-
 
         return new ResponseEntity<>("Something went wrong....", HttpStatus.FORBIDDEN);
     }
