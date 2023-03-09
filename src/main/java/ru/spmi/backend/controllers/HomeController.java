@@ -37,7 +37,7 @@ public class HomeController {
 
     @PostMapping("/test")
     public ResponseEntity<?> testMethod(@RequestBody @Validated AuthRequestDTO authRequestDTO) {
-        return new ResponseEntity<>(new AuthRequestDTO("vasya", "qwerty"), HttpStatus.OK);
+        return new ResponseEntity<>(new AuthRequestDTO("vasya", "qwerty", ""), HttpStatus.OK);
     }
 
     @GetMapping("/users")

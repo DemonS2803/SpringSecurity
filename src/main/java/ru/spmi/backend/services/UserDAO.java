@@ -95,5 +95,9 @@ public class UserDAO {
         return findAllUserRoles(userRepository.findUsersEntityByLogin(login).get()).stream().map(x -> x.getRoleName()).collect(Collectors.toList()).contains(role);
     }
 //    public String getUserByPidAndRole()
+    
+    public String getPasswordByLogin(String login) {
+        return userRepository.findUsersEntityByLogin(login).get().getPassword();
+    }
 
 }
