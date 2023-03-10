@@ -30,6 +30,7 @@ public class JwtUtils {
         return JWT.create()
                 .withSubject(username)
                 .withClaim("role", role)
+                .withClaim("roleId", userDAO.getRoleIdByRoleName(role).toString())
                 .withIssuer(environment.getRequiredProperty("jwt.issuer"))
                 .withExpiresAt(calendar.getTime())
                 .sign(algorithm);
@@ -61,5 +62,10 @@ public class JwtUtils {
     public String getRoleFromToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
         return JWT.require(algorithm).build().verify(token).getClaim("role").asString();
+    }
+
+    public String getRoleIdFromToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
+        return JWT.require(algorithm).build().verify(token).getClaim("roleId").asString();
     }
 }

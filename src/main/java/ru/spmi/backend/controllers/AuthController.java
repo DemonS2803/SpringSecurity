@@ -47,6 +47,7 @@ public class AuthController {
         System.out.println("token generated");
         System.out.println("NameFromToken: " + jwtUtils.getUserNameFromJwtToken(jwt));
         System.out.println("RoleFromToken: " + jwtUtils.getRoleFromToken(jwt));
+        System.out.println("RoleId: " + jwtUtils.getRoleIdFromToken(jwt));
 
 //        HttpHeaders headers = new HttpHeaders();
 //        headers.add("Authorization", jwt);
@@ -81,6 +82,7 @@ public class AuthController {
         System.out.println(token);
         System.out.println("NameFromGotToken: " + jwtUtils.getUserNameFromJwtToken(token));
         System.out.println("RoleFromGotToken: " + jwtUtils.getRoleFromToken(token));
+        System.out.println("RoleId: " + jwtUtils.getRoleIdFromToken(token));
         System.out.println("isTokenValid " + isTokenValid);
         System.out.println("isRoleAllowed " + isRoleAllowed);
         if (isTokenValid && isRoleAllowed) {
@@ -94,6 +96,7 @@ public class AuthController {
             System.out.println(newToken);
             System.out.println("ChosenNameFromToken: " + jwtUtils.getUserNameFromJwtToken(newToken));
             System.out.println("ChosenRoleFromToken: " + jwtUtils.getRoleFromToken(newToken));
+            System.out.println("RoleId: " + jwtUtils.getRoleIdFromToken(newToken));
             String login = SecurityContextHolder.getContext().getAuthentication().getName();
             System.out.println(userDAO.findNeedLoginByLoginAndRole(login, chosenRole.getRole()));
             System.out.println(userDAO.getPasswordByLogin(login));
