@@ -23,10 +23,12 @@ public class JwtUtils {
     @Autowired
     private UserDAO userDAO;
 
+    // создает токен на основе настроек из application.yaml
     public String generateJwtToken(String username, String role) {
         Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.MINUTE, Integer.parseInt(environment.getRequiredProperty("jwt.time.expired")));
+        // можно установить любые claims главное чтобы были пары <String, String>
         return JWT.create()
                 .withSubject(username)
                 .withClaim("role", role)
@@ -35,6 +37,8 @@ public class JwtUtils {
                 .sign(algorithm);
     }
 
+
+    // проверяет, не истек ли токен
     public Boolean validateJwtToken(String token) {
         Algorithm algorithm = Algorithm.HMAC256(environment.getRequiredProperty("jwt.secret"));
         try {

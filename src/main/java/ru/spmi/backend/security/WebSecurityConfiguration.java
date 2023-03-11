@@ -51,11 +51,13 @@ public class WebSecurityConfiguration {
                         .requestMatchers("/api/student/**").hasAnyAuthority("STUDENT", "ADMIN")
                         .anyRequest().authenticated()
                 )
+                // устанавливает стандартных шаблон http
                 .httpBasic(Customizer.withDefaults())
                 .cors().and()
                 .csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(authEntryPointJwt).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        // ставит наш кастомный jwt фильтр (работает перед каждым запросом)
         httpSecurity.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return httpSecurity.build();
     }

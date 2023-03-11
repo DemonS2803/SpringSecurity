@@ -39,21 +39,16 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUserPage(@RequestBody @Validated AuthRequestDTO loginRequest) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        Authentication authentication = authenticateUser(loginRequest.getLogin(), loginRequest.getPassword());
-        String jwt = jwtUtils.generateJwtToken(loginRequest.getLogin(), userDAO.getRoleByLogin(loginRequest.getLogin()));
-        System.out.println(jwt);
-        System.out.println("SET_AUTH " + SecurityContextHolder.getContext().getAuthentication().getName());
-        System.out.println("USER: " + authentication.getName());
-        System.out.println("token generated");
-        System.out.println("NameFromToken: " + jwtUtils.getUserNameFromJwtToken(jwt));
-        System.out.println("RoleFromToken: " + jwtUtils.getRoleFromToken(jwt));
 
-//        HttpHeaders headers = new HttpHeaders();
-//        headers.add("Authorization", jwt);
-//
+        // логинимся в контекст
+        Authentication authentication = authenticateUser(loginRequest.getLogin(), loginRequest.getPassword());
+
+        //создаем новый токен
+        String jwt = jwtUtils.generateJwtToken(loginRequest.getLogin(), userDAO.getRoleByLogin(loginRequest.getLogin()));
+
+        // получаем список всех доступных этому person'у ролей
         Set<String> roles = userDAO.findAllUserRoles(userDAO.findUserByLogin(loginRequest.getLogin())).stream().map(x -> x.getRoleName()).collect(Collectors.toSet());
         var responcedto = new AuthResponceDTO();
-        System.out.println(roles.size());
         var userdto = new UserDTO();
         userdto.setToken(jwt);
         responcedto.setUser(userdto);
@@ -73,16 +68,17 @@ public class AuthController {
         return "return choose-role page";
     }
 
+    /*
+    функция для смены роли пользователя с несколькими учетками
+     */
     @PostMapping("/choose_role")
     public ResponseEntity<?> gotChosenRolePage(@RequestHeader("Authorization") String token, @RequestBody @Validated ChosenRoleDTO chosenRole) throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        System.out.println(token);
+
+        // проверяет можно ли перерегаться
         boolean isTokenValid = jwtUtils.validateJwtToken(token);
         boolean isRoleAllowed = userDAO.checkUserRole(jwtUtils.getUserNameFromJwtToken(token), chosenRole.getRole());
-        System.out.println(token);
-        System.out.println("NameFromGotToken: " + jwtUtils.getUserNameFromJwtToken(token));
-        System.out.println("RoleFromGotToken: " + jwtUtils.getRoleFromToken(token));
-        System.out.println("isTokenValid " + isTokenValid);
-        System.out.println("isRoleAllowed " + isRoleAllowed);
+
+        // если можно, то создает новый токен
         if (isTokenValid && isRoleAllowed) {
             String newToken = jwtUtils.generateJwtToken(
                         userDAO.findNeedLoginByLoginAndRole(
@@ -90,24 +86,29 @@ public class AuthController {
                                 chosenRole.getRole()),
                         chosenRole.getRole()
             );
-            System.out.println("token generated");
-            System.out.println(newToken);
-            System.out.println("ChosenNameFromToken: " + jwtUtils.getUserNameFromJwtToken(newToken));
-            System.out.println("ChosenRoleFromToken: " + jwtUtils.getRoleFromToken(newToken));
+            // получаем текущий логин из контекста
             String login = SecurityContextHolder.getContext().getAuthentication().getName();
-            System.out.println(userDAO.findNeedLoginByLoginAndRole(login, chosenRole.getRole()));
-            System.out.println(userDAO.getPasswordByLogin(login));
+
+            //создаем новую аутентификацию на основе текущего логина и новой роли
             Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken (
                                                     userDAO.findNeedLoginByLoginAndRole(login, chosenRole.getRole()),
                                                     userDAO.getPasswordByLogin(login)
                                                     ));
+
+            // устанавливаем новые данные в контекст
             SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // возвращаем новый токен
             return new ResponseEntity<>(new TokenDTO(newToken), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>("Something went wrong....", HttpStatus.FORBIDDEN);
     }
 
+    /*
+    лезет в бд сверяться в правильноси введенного логина и пароля после чего созает аутентификацию
+    и сохраняет ее в контекст, потом по ней будет осуществляться запрет в доступе к страницам
+     */
     public Authentication authenticateUser(String login, String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login, userDAO.toSha1(password)));

@@ -8,5 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ChosenRoleDTO {
+
+    // этот дто можно упразднить (заменить любым общим дто с 1 стринг полем)
     private String role;
 }

@@ -23,7 +23,7 @@ public class UserDAO {
     @Autowired
     private RolesRepository rolesRepository;
 
-//    а зачем оно, если это только в 1 сторону?
+//    кодировщик
     public String toSha1(String input) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         MessageDigest msdDigest = MessageDigest.getInstance("SHA-1");
         msdDigest.update(input.getBytes("UTF-8"), 0, input.length());
@@ -82,6 +82,8 @@ public class UserDAO {
         return rolesRepository.findDRolesEntityByRoleId(roleId);
     }
 
+
+    // применяется при смене роли - находит нужную учетную запись по роли и текущей в контексте аутентификации
     public String findNeedLoginByLoginAndRole(String login, String role) {
         System.out.println("find " + login + " " + role);
         UsersEntity user = userRepository.findUsersEntityByLogin(login).get();
@@ -95,7 +97,6 @@ public class UserDAO {
         return findAllUserRoles(userRepository.findUsersEntityByLogin(login).get()).stream().map(x -> x.getRoleName()).collect(Collectors.toList()).contains(role);
     }
 //    public String getUserByPidAndRole()
-    
     public String getPasswordByLogin(String login) {
         return userRepository.findUsersEntityByLogin(login).get().getPassword();
     }
