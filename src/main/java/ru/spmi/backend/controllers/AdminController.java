@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/admin")
 public class AdminController {
 
+
     @GetMapping("/page")
     public ResponseEntity<?> adminPage() {
         return new ResponseEntity<>("success admin registration", HttpStatus.OK);
