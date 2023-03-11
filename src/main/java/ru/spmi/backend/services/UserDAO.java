@@ -101,4 +101,8 @@ public class UserDAO {
         return userRepository.findUsersEntityByLogin(login).get().getPassword();
     }
 
+    public Long getRoleIdByRoleName(String roleName){
+        return rolesRepository.findDRolesEntityByRoleName(roleName).getRoleId();
+    }
+
 }

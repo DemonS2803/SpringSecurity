@@ -12,9 +12,9 @@ spring:
                     auto: update
 
     datasource:
-        url: jdbc:postgresql://localhost:5432/SpmiBackend
+        url: jdbc:postgresql://localhost:5432/postgres
         username: postgres
-        password: qwerty
+        password: postgres
         driver-class-name: org.postgresql.Driver
 #    flyway:
 #        baseline-on-migrate: true
