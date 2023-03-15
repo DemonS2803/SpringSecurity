@@ -1,7 +1,9 @@
 package ru.spmi.backend.repositories;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.spmi.backend.entities.EmployeeResponse;
 import ru.spmi.backend.entities.UsersEntity;
 
 import java.util.ArrayList;
@@ -18,7 +20,8 @@ public interface UserRepository extends JpaRepository<UsersEntity, Long> {
     Optional<UsersEntity> findUsersEntityByPersonIdAndRoles(Long personId, String role);
 
  
-//    @Query("SELECT ur.role_id from users_roles ur where ur.user_id = ?1")
-//    ArrayList<Long> findRoles(Long userId);
+//    @Query("SELECT fio FROM vf_test_complete_json_person(:filters::Json, :page_rows, :page_num)")
+    @Query(value = "SELECT * FROM p")
+    ArrayList<EmployeeResponse> listEployeers(String filters, int page_rows, int page_num);
 
 }
