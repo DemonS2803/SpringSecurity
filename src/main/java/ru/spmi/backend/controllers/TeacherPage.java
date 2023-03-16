@@ -14,7 +14,8 @@ public class TeacherPage {
 
     @GetMapping("/home")
     public ResponseEntity<?> teacherPage() {
-        return new ResponseEntity<>(new FilterDTO("success teacher registration"), HttpStatus.OK);
+        System.out.println("success teacher visit");
+        return new ResponseEntity<>(new FilterDTO("success teacher br br br"), HttpStatus.OK);
 
     }
 }

@@ -32,7 +32,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             // валидирует
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                System.out.println("im in doFilterInternal");
 
                 // загружает юезп из бд (его роль)
                 UserDetails userDetails = userService.loadUserByUsername(username);
@@ -52,17 +51,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     // достает токен из запроса
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
-        System.out.println("HI");
-        System.out.println("Header AUTH: " + headerAuth);
+
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            System.out.println(headerAuth.substring(7, headerAuth.length()));
-            System.out.println("im in bearer");
             return headerAuth.substring(7, headerAuth.length());
         }
         if (request.getParameter("token") != null) {
-            System.out.println("im in parseJwt");
             return request.getParameter("token");
         }
+
         return headerAuth;
     }
 }

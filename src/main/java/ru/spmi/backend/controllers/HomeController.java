@@ -1,6 +1,9 @@
 package ru.spmi.backend.controllers;
 
+import com.google.gson.Gson;
+import org.hibernate.dialect.PostgreSQLJsonJdbcType;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.json.GsonJsonParser;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +15,7 @@ import ru.spmi.backend.dto.AuthRequestDTO;
 import ru.spmi.backend.dto.ChosenRoleDTO;
 import ru.spmi.backend.dto.FilterDTO;
 import ru.spmi.backend.entities.UsersEntity;
+import ru.spmi.backend.repositories.TestRepository;
 import ru.spmi.backend.repositories.UserRepository;
 import ru.spmi.backend.services.UserDAO;
 
@@ -22,31 +26,36 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/home")
 public class HomeController {
 
     @Autowired
     private UserRepository userRepository;
     @Autowired
+    private TestRepository testRepository;
+    @Autowired
     private UserDAO userDAO;
 
     @GetMapping("/")
-    public ResponseEntity<?> getHomePage() {
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("token", "qwerty234");
-        return new ResponseEntity<>("home page", headers, HttpStatus.OK);
+    public ResponseEntity<?> getHomePage() throws UnsupportedEncodingException, NoSuchAlgorithmException {
+        return new ResponseEntity<>("home page", HttpStatus.OK);
     }
 //
     @PostMapping("/test")
     public ResponseEntity<?> testMethod(@RequestBody String filters) {
-        System.out.println("test page");
-        System.out.println(filters);
+
         return new ResponseEntity<>(filters, HttpStatus.OK);
     }
 
     @GetMapping("/users")
     public ResponseEntity<?> homeUsers() throws UnsupportedEncodingException, NoSuchAlgorithmException {
-        System.out.println(userDAO.toSha1("test"));
+
+        var arr = testRepository.paginationFunc("{\"filter_fio\":\"Ива\", \"filter_position\":\"\"}", 30, 0);
+        for (var a : arr) {
+            System.out.println(a.getFio());
+        }
+        System.out.println("db test fun call(6) = " + testRepository.dbIncrement(6));
         return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
     @GetMapping("/success")

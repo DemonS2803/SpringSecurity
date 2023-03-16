@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -62,9 +63,12 @@ public class AuthController {
         }
     }
 
-    @GetMapping("/choose_role")
-    public String chooseRolePage() {
-        return "return choose-role page";
+
+
+
+    @GetMapping("/test")
+    public String testMethod() {
+        return "suck";
     }
 
     /*
@@ -108,6 +112,8 @@ public class AuthController {
     лезет в бд сверяться в правильноси введенного логина и пароля после чего созает аутентификацию
     и сохраняет ее в контекст, потом по ней будет осуществляться запрет в доступе к страницам
      */
+
+
     public Authentication authenticateUser(String login, String password) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(login, userDAO.toSha1(password)));

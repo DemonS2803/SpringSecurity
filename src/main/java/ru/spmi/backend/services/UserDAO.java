@@ -1,10 +1,13 @@
 package ru.spmi.backend.services;
 
+import com.google.gson.Gson;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import ru.spmi.backend.dto.EmployerDTO;
 import ru.spmi.backend.entities.DRolesEntity;
 import ru.spmi.backend.entities.UsersEntity;
 import ru.spmi.backend.repositories.RolesRepository;
+import ru.spmi.backend.repositories.TestRepository;
 import ru.spmi.backend.repositories.UserRepository;
 
 import javax.xml.bind.DatatypeConverter;
@@ -22,6 +25,8 @@ public class UserDAO {
     private UserRepository userRepository;
     @Autowired
     private RolesRepository rolesRepository;
+    @Autowired
+    private TestRepository testRepository;
 
 //    кодировщик
     public String toSha1(String input) throws UnsupportedEncodingException, NoSuchAlgorithmException {
@@ -32,7 +37,6 @@ public class UserDAO {
 
     public boolean saveUser(UsersEntity user) throws UnsupportedEncodingException, NoSuchAlgorithmException {
         try {
-
             user.setPassword(toSha1(user.getPassword()));
             userRepository.save(user);
             return true;
@@ -56,7 +60,6 @@ public class UserDAO {
     }
 
     public Set<DRolesEntity> findAllUserRoles(UsersEntity user) {
-        System.out.println(user);
         var personUsers = userRepository.findAllByPersonId(user.getPersonId());
         personUsers.stream().forEach(System.out::println);
         var personRoles = personUsers.stream()
@@ -85,7 +88,6 @@ public class UserDAO {
 
     // применяется при смене роли - находит нужную учетную запись по роли и текущей в контексте аутентификации
     public String findNeedLoginByLoginAndRole(String login, String role) {
-        System.out.println("find " + login + " " + role);
         UsersEntity user = userRepository.findUsersEntityByLogin(login).get();
         ArrayList<UsersEntity> usersEntities = userRepository.findAllByPersonId(user.getPersonId());
         UsersEntity userOut = usersEntities.stream().filter(x -> rolesRepository.findDRolesEntityByRoleName(role).getRoleId() == Long.parseLong(x.getRoles())).findFirst().get();
@@ -103,6 +105,13 @@ public class UserDAO {
 
     public Long getRoleIdByRoleName(String roleName){
         return rolesRepository.findDRolesEntityByRoleName(roleName).getRoleId();
+    }
+
+    public ArrayList<EmployerDTO> getEmployersJsonFromFilters(String filters, int countRows, int numRow) {
+        ArrayList<EmployerDTO> employersList = new ArrayList<>();
+        var bdFuncResponse = testRepository.paginationFunc(filters, countRows, numRow);
+        bdFuncResponse.stream().forEach(x -> employersList.add(new EmployerDTO(x.getFio(), x.getPositions())));
+        return  employersList;
     }
 
 }

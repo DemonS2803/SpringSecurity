@@ -25,11 +25,8 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
-        System.out.println(login);
         ru.spmi.backend.entities.UsersEntity user = userDAO.findUserByLogin(login);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        System.out.println(userDAO.findAllUserRoles(user));
-
         List<GrantedAuthority> authorities = buildUserAuthority(Set.of(userDAO.getRoleEntityByLogin(login)));
 
         return buildUserForAuthentication(user, authorities);
