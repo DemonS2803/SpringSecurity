@@ -20,8 +20,8 @@ public interface TestRepository extends CrudRepository<TestEntity, Long> {
 //    @Query(nativeQuery = true, value = "SELECT * FROM public.vf_test_complete_json_person(:filt::json, :count_rows, :num_row)")
 //    ArrayList<?> paginationFunc(@Param("filt") String filt,@Param("count_rows") int count_rows,@Param("num_row") int num_row);
 
-    @Query(nativeQuery = true, value = "SELECT * FROM fn_increment(:num)")
-    Integer dbIncrement(Integer num);
+//    @Query(nativeQuery = true, value = "SELECT * FROM fn_increment(:num)")
+//    Integer dbIncrement(Integer num);
 
 
 

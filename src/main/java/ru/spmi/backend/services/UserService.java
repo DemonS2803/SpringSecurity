@@ -27,7 +27,7 @@ public class UserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String login) throws UsernameNotFoundException {
         ru.spmi.backend.entities.UsersEntity user = userDAO.findUserByLogin(login);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        List<GrantedAuthority> authorities = buildUserAuthority(Set.of(userDAO.getRoleEntityByLogin(login)));
+        List<GrantedAuthority> authorities = buildUserAuthority(userDAO.getRoleEntityByLogin(login));
 
         return buildUserForAuthentication(user, authorities);
     }
@@ -36,9 +36,9 @@ public class UserService implements UserDetailsService {
         return new User(user.getLogin(), user.getPassword(), true, true, true, true, grantedAuthorities);
     }
 
-    public List<GrantedAuthority> buildUserAuthority(Set<DRolesEntity> userRoles) {
+    public List<GrantedAuthority> buildUserAuthority(Set<Long> userRolesId) {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
-        userRoles.forEach((userRole) -> grantedAuthorities.add(new SimpleGrantedAuthority(userRole.getRoleName())));
+        userRolesId.forEach((userRoleId) -> grantedAuthorities.add(new SimpleGrantedAuthority(userDAO.getRoleById(userRoleId).getRoleName())));
         return new ArrayList<>(grantedAuthorities);
     }
 

@@ -55,7 +55,7 @@ public class HomeController {
         for (var a : arr) {
             System.out.println(a.getFio());
         }
-        System.out.println("db test fun call(6) = " + testRepository.dbIncrement(6));
+//        System.out.println("db test fun call(6) = " + testRepository.dbIncrement(6));
         return new ResponseEntity<>(userRepository.findAll(), HttpStatus.OK);
     }
     @GetMapping("/success")

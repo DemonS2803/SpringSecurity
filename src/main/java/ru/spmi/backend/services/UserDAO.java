@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import ru.spmi.backend.dto.EmployerDTO;
 import ru.spmi.backend.entities.DRolesEntity;
 import ru.spmi.backend.entities.UsersEntity;
+import ru.spmi.backend.repositories.PersonRepository;
 import ru.spmi.backend.repositories.RolesRepository;
 import ru.spmi.backend.repositories.TestRepository;
 import ru.spmi.backend.repositories.UserRepository;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 @Service
 public class UserDAO {
 
+    @Autowired
+    private PersonRepository personRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -77,8 +80,8 @@ public class UserDAO {
         return rolesRepository.findDRolesEntityByRoleId(Long.valueOf(userRepository.findUsersEntityByLogin(login).get().getRoles())).getRoleName();
     }
 
-    public DRolesEntity getRoleEntityByLogin(String login) {
-        return rolesRepository.findDRolesEntityByRoleId(Long.valueOf(userRepository.findUsersEntityByLogin(login).get().getRoles()));
+    public Set<Long> getRoleEntityByLogin(String login) {
+        return personRepository.findPersonUsersEntitiesByPersonId(userRepository.findUsersEntityByLogin(login).get().getPersonId()).stream().map(x -> x.getRoleId()).collect(Collectors.toSet());
     }
 
     public DRolesEntity getRoleById(Long roleId) {
