@@ -28,16 +28,19 @@ public class UserService implements UserDetailsService {
         ru.spmi.backend.entities.UsersEntity user = userDAO.findUserByLogin(login);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         List<GrantedAuthority> authorities = buildUserAuthority(userDAO.getRoleEntityByLogin(login));
+        System.out.println(authorities.size());
 
         return buildUserForAuthentication(user, authorities);
     }
 
     public User buildUserForAuthentication(ru.spmi.backend.entities.UsersEntity user, List<GrantedAuthority> grantedAuthorities) {
+        System.out.println(grantedAuthorities.size());
         return new User(user.getLogin(), user.getPassword(), true, true, true, true, grantedAuthorities);
     }
 
     public List<GrantedAuthority> buildUserAuthority(Set<Long> userRolesId) {
         Set<GrantedAuthority> grantedAuthorities = new HashSet<>();
+        System.out.println(userRolesId.size());
         userRolesId.forEach((userRoleId) -> grantedAuthorities.add(new SimpleGrantedAuthority(userDAO.getRoleById(userRoleId).getRoleName())));
         return new ArrayList<>(grantedAuthorities);
     }

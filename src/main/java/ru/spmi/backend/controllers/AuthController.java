@@ -51,6 +51,7 @@ public class AuthController {
         var responcedto = new AuthResponceDTO();
         var userdto = new UserDTO();
         userdto.setToken(jwt);
+        responcedto.setRoles(roles);
         responcedto.setUser(userdto);
         if (roles.size() < 2) {
             responcedto.setNeedToChooseRole(false);
@@ -58,7 +59,7 @@ public class AuthController {
 
         } else {
             responcedto.setNeedToChooseRole(true);
-            responcedto.setRoles(roles);
+
             return new ResponseEntity<>(responcedto, HttpStatus.OK);
         }
     }
@@ -102,7 +103,7 @@ public class AuthController {
             SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // возвращаем новый токен
-            return new ResponseEntity<>(new TokenDTO(newToken), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new ChooseRoleResponseDTO(chosenRole.getRole(), newToken), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>("Something went wrong....", HttpStatus.FORBIDDEN);
