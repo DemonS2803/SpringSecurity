@@ -45,10 +45,11 @@ public class WebSecurityConfiguration {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .authorizeHttpRequests((authz) -> authz
-                        .requestMatchers("/api/auth/**", "/home/**").permitAll()
+                        .requestMatchers("/api/auth/**", "/home/**", "/api/menu/**").permitAll()
                         .requestMatchers("/api/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/teacher/**").hasAnyAuthority( "TEACHER", "ADMIN")
                         .requestMatchers("/api/student/**").hasAnyAuthority("STUDENT", "ADMIN")
+//                        .requestMatchers("/api/menu/**").hasAnyAuthority("ADMIN", "STUDENT", "TEACHER")
                         .anyRequest().authenticated()
                 )
                 // устанавливает стандартных шаблон http

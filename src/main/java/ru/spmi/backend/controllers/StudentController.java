@@ -15,5 +15,4 @@ public class StudentController {
     public ResponseEntity<?> studentHomePage() {
         return new ResponseEntity<>(new FilterDTO("У студентов стипуха маленькая, а так все отлично"), HttpStatus.OK);
     }
-
 }

@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.stream.Collectors;
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/home")
 public class HomeController {
 

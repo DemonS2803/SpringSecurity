@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 
 
 @RestController
-@CrossOrigin(origins = "*")
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -48,28 +47,41 @@ public class AuthController {
 
         // получаем список всех доступных этому person'у ролей
         Set<String> roles = userDAO.findAllUserRoles(userDAO.findUserByLogin(loginRequest.getLogin())).stream().map(x -> x.getRoleName()).collect(Collectors.toSet());
+        System.out.println("roles: \n" + roles);
         var responcedto = new AuthResponceDTO();
         var userdto = new UserDTO();
         userdto.setToken(jwt);
+        userdto.setLogin(loginRequest.getLogin());
         responcedto.setRoles(roles);
         responcedto.setUser(userdto);
-        if (roles.size() < 2) {
-            responcedto.setNeedToChooseRole(false);
-            return new ResponseEntity<>(responcedto, HttpStatus.ACCEPTED);
 
-        } else {
-            responcedto.setNeedToChooseRole(true);
+        if (roles.size() > 1) responcedto.setNeedToChooseRole(true);
+        else responcedto.setNeedToChooseRole(false);
 
-            return new ResponseEntity<>(responcedto, HttpStatus.OK);
-        }
+        return new ResponseEntity<>(responcedto, HttpStatus.ACCEPTED);
+    }
+
+    @GetMapping("/test")
+    public String test() {
+        return "test";
+    }
+
+    @GetMapping("/get_menu")
+    public String getMenu() {
+        System.out.println("in getMenu");
+        var response = new ResponseEntity<>(new MenuDTO("hello", "a"), HttpStatus.OK);
+        System.out.println(response);
+        return "{\"menu\":[{\"menu_item\":\"Журналы\",\"link\":\"url_1\",\"sorted\":\"1\", \"level\":[{\"menu_item\":\"Журнал студентов\",\"link\":\"url_1_1\",\"sorted\":\"1\"} ,{\"menu_item\":\"Журнал групп\",\"link\":\"url_1_2\",\"sorted\":\"2\"} ,{\"menu_item\":\"Журнал групп ДПК\",\"link\":\"url_1_3\",\"sorted\":\"3\"} ,{\"menu_item\":\"Журнал соискателей\",\"link\":\"url_1_4\",\"sorted\":\"4\"} ,{\"menu_item\":\"Журнал отчетов\",\"link\":\"url_1_5\",\"sorted\":\"5\"}]} ,{\"menu_item\":\"Программы и стандарты\",\"link\":\"url_2\",\"sorted\":\"2\", \"level\":[{\"menu_item\":\"Учебные планы\",\"link\":\"url_2_1\",\"sorted\":\"1\"} ,{\"menu_item\":\"НАГРУЗКА\",\"link\":\"url_2_2\",\"sorted\":\"2\", \"level\":[{\"menu_item\":\"Выписка из рабочих учебных планов\",\"link\":\"url_3_1\",\"sorted\":\"1\"}]}]} ,{\"menu_item\":\"Диссертационный совет\",\"link\":\"url_4\",\"sorted\":\"4\"}]}";
     }
 
 
 
-
-    @GetMapping("/test")
-    public String testMethod() {
-        return "suck";
+    @GetMapping("/get_available_roles")
+    public ResponseEntity<?> getAvailableRoles() {
+        Set<String> roles = userDAO.findAllUserRoles(userDAO.findUserByLogin(SecurityContextHolder.getContext().getAuthentication().getName())).stream().map(x -> x.getRoleName()).collect(Collectors.toSet());
+        var responsedto = new AuthResponceDTO();
+        responsedto.setRoles(roles);
+        return new ResponseEntity<>(responsedto, HttpStatus.OK);
     }
 
     /*
@@ -84,26 +96,21 @@ public class AuthController {
 
         // если можно, то создает новый токен
         if (isTokenValid && isRoleAllowed) {
-            String newToken = jwtUtils.generateJwtToken(
-                        userDAO.findNeedLoginByLoginAndRole(
-                                SecurityContextHolder.getContext().getAuthentication().getName(),
-                                chosenRole.getRole()),
-                        chosenRole.getRole()
-            );
+
             // получаем текущий логин из контекста
-            String login = SecurityContextHolder.getContext().getAuthentication().getName();
+//            String login = SecurityContextHolder.getContext().getAuthentication().getName();
 
             //создаем новую аутентификацию на основе текущего логина и новой роли
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken (
-                                                    userDAO.findNeedLoginByLoginAndRole(login, chosenRole.getRole()),
-                                                    userDAO.getPasswordByLogin(login)
-                                                    ));
+//            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken (
+//                                                    userDAO.findNeedLoginByLoginAndRole(login, chosenRole.getRole()),
+//                                                    userDAO.getPasswordByLogin(login)
+//                                                    ));
 
             // устанавливаем новые данные в контекст
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             // возвращаем новый токен
-            return new ResponseEntity<>(new ChooseRoleResponseDTO(chosenRole.getRole(), newToken), HttpStatus.ACCEPTED);
+            return new ResponseEntity<>(new ChooseRoleResponseDTO(chosenRole.getRole(), ""), HttpStatus.ACCEPTED);
         }
 
         return new ResponseEntity<>("Something went wrong....", HttpStatus.FORBIDDEN);

@@ -63,10 +63,10 @@ public class UserDAO {
     }
 
     public Set<DRolesEntity> findAllUserRoles(UsersEntity user) {
-        var personUsers = userRepository.findAllByPersonId(user.getPersonId());
-        personUsers.stream().forEach(System.out::println);
+        var personUsers = personRepository.findPersonUsersEntitiesByPersonId(user.getPersonId());
+        System.out.println("got person roles: " + personUsers.size());
         var personRoles = personUsers.stream()
-                                            .map(x -> rolesRepository.findDRolesEntityByRoleId(Long.parseLong(x.getRoles())))
+                                            .map(x -> rolesRepository.findDRolesEntityByRoleId(x.getRoleId()))
                                             .collect(Collectors.toSet());
         System.out.println(personRoles);
         return personRoles;
